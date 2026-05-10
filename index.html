@@ -3,121 +3,696 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Tamagotchi Protected</title>
+    <title>Nitya — Case Study</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
-    <style>
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet" />
 
-        html, body {
-            height: 100%;
-            background: #0a0a0a;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Space Mono', monospace;
-            -webkit-font-smoothing: antialiased;
+    <style>
+        :root {
+            --bg: #0c0c0c;
+            --bg2: #111111;
+            --border: rgba(255,255,255,0.08);
+            --border-strong: rgba(255,255,255,0.13);
+            --text-primary: rgba(255,255,255,0.92);
+            --text-secondary: rgba(255,255,255,0.45);
+            --text-tertiary: rgba(255,255,255,0.28);
+            --accent: #7F77DD;
+            --mono: 'Space Mono', monospace;
+            --sans: 'DM Sans', sans-serif;
         }
 
-        /* Subtle grid background */
-        body::before {
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            background: var(--bg);
+            color: var(--text-primary);
+            font-family: var(--sans);
+            font-size: 15px;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Noise overlay */
+        body::after {
             content: '';
             position: fixed;
             inset: 0;
-            background-image:
-                linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
-            background-size: 40px 40px;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
             pointer-events: none;
-            z-index: 0;
+            z-index: 9999;
+            opacity: 0.35;
         }
 
-        #root {
+        /* ── Nav ── */
+        nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 48px;
+            height: 56px;
+            background: rgba(12,12,12,0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav-name {
+            font-family: var(--mono);
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: 0.02em;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 36px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            font-family: var(--sans);
+            font-size: 13.5px;
+            font-weight: 400;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.15s;
+        }
+
+        .nav-links a:hover { color: var(--text-primary); }
+
+        /* ── Hero ── */
+        main { padding-top: 56px; }
+
+        .hero {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            min-height: calc(100vh - 56px);
+            align-items: stretch;
+        }
+
+        /* Left */
+        .hero-left {
+            padding: 88px 72px 88px 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .eyebrow {
+            font-family: var(--mono);
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 22px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .eyebrow::before {
+            content: '';
+            width: 20px; height: 1px;
+            background: var(--accent);
+            display: inline-block;
+        }
+
+        h1 {
+            font-family: var(--sans);
+            font-size: clamp(34px, 3.8vw, 52px);
+            font-weight: 300;
+            line-height: 1.13;
+            letter-spacing: -0.03em;
+            color: var(--text-primary);
+            margin-bottom: 24px;
+        }
+
+        h1 em {
+            font-style: italic;
+            color: rgba(255,255,255,0.5);
+        }
+
+        .hero-body {
+            font-size: 15px;
+            font-weight: 300;
+            line-height: 1.8;
+            color: var(--text-secondary);
+            max-width: 380px;
+            margin-bottom: 40px;
+        }
+
+        .meta-row {
+            display: flex;
+            gap: 36px;
+            margin-bottom: 48px;
+            padding-bottom: 40px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .meta-item { display: flex; flex-direction: column; gap: 5px; }
+
+        .meta-label {
+            font-family: var(--mono);
+            font-size: 9px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--text-tertiary);
+        }
+
+        .meta-value {
+            font-size: 13px;
+            font-weight: 400;
+            color: var(--text-secondary);
+        }
+
+        .cta-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 22px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border-strong);
+            border-radius: 100px;
+            font-family: var(--sans);
+            font-size: 13.5px;
+            font-weight: 500;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: background 0.2s, border-color 0.2s, transform 0.15s;
+            width: fit-content;
+            letter-spacing: 0.005em;
+        }
+
+        .cta-btn:hover {
+            background: rgba(255,255,255,0.09);
+            border-color: rgba(255,255,255,0.2);
+            transform: translateY(-1px);
+        }
+
+        .cta-btn svg { opacity: 0.5; flex-shrink: 0; }
+
+        /* Right */
+        .hero-right {
+            border-left: 1px solid var(--border);
+            background: var(--bg2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 80px 64px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Subtle radial glow */
+        .hero-right::before {
+            content: '';
+            position: absolute;
+            width: 500px; height: 500px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(127,119,221,0.07) 0%, transparent 65%);
+            pointer-events: none;
+        }
+
+        .laptop-frame {
+            width: 100%;
+            max-width: 460px;
+            aspect-ratio: 16/10;
+            background: linear-gradient(160deg, #1c1c1c 0%, #141414 100%);
+            border-radius: 14px;
+            border: 1px solid rgba(255,255,255,0.09);
+            overflow: hidden;
             position: relative;
             z-index: 1;
+            box-shadow:
+                0 0 0 1px rgba(0,0,0,0.6),
+                0 48px 96px rgba(0,0,0,0.7),
+                0 8px 24px rgba(0,0,0,0.4);
         }
 
-        @keyframes pm-breathe { 0%,100%{transform:scale(1)} 50%{transform:scale(1.03)} }
-        @keyframes pm-wobble  { 0%,100%{transform:rotate(0deg)} 25%{transform:rotate(-4deg)} 75%{transform:rotate(4deg)} }
-        @keyframes pm-bounce  { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-7px)} }
-        @keyframes pm-shake   { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-5px)} 40%{transform:translateX(5px)} 60%{transform:translateX(-4px)} 80%{transform:translateX(4px)} }
-        @keyframes fadein     { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+        .laptop-screen {
+            width: 100%; height: 100%;
+            background: linear-gradient(135deg, #0e0e1c 0%, #11111e 60%, #09090f 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
+        .screen-ui {
+            width: 82%;
+            display: flex;
+            flex-direction: column;
+            gap: 9px;
+            opacity: 0.65;
+        }
+
+        .s-bar {
+            height: 7px;
+            border-radius: 4px;
+            background: rgba(255,255,255,0.07);
+        }
+        .s-bar.w-40 { width: 40%; background: rgba(127,119,221,0.22); }
+        .s-bar.w-75 { width: 75%; }
+        .s-bar.w-55 { width: 55%; }
+        .s-block {
+            height: 56px;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.05);
+            margin: 3px 0;
+        }
+        .s-dots { display: flex; gap: 5px; margin-top: 4px; }
+        .s-dot { width: 5px; height: 5px; border-radius: 50%; background: rgba(255,255,255,0.1); }
+
+        /* ── Divider ── */
+        hr { border: none; border-top: 1px solid var(--border); }
+
+        /* ── Revealed section ── */
+        .revealed-section {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 100px 48px 120px;
+            opacity: 0;
+            transform: translateY(28px);
+            transition: opacity 0.9s cubic-bezier(0.16,1,0.3,1), transform 0.9s cubic-bezier(0.16,1,0.3,1);
+            pointer-events: none;
+        }
+
+        .revealed-section.visible {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        .revealed-eyebrow {
+            font-family: var(--mono);
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .revealed-eyebrow::before {
+            content: '';
+            width: 20px; height: 1px;
+            background: var(--accent);
+            display: inline-block;
+        }
+
+        h2 {
+            font-family: var(--sans);
+            font-size: clamp(26px, 3.2vw, 42px);
+            font-weight: 300;
+            letter-spacing: -0.03em;
+            line-height: 1.18;
+            color: var(--text-primary);
+            margin-bottom: 56px;
+        }
+
+        h2 em { font-style: italic; color: rgba(255,255,255,0.42); }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 56px;
+        }
+
+        .info-card {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 28px 28px 30px;
+            opacity: 0;
+            transform: translateY(18px);
+            transition: opacity 0.55s cubic-bezier(0.16,1,0.3,1), transform 0.55s cubic-bezier(0.16,1,0.3,1);
+        }
+
+        .revealed-section.visible .info-card:nth-child(1) { opacity:1; transform:translateY(0); transition-delay:0.12s; }
+        .revealed-section.visible .info-card:nth-child(2) { opacity:1; transform:translateY(0); transition-delay:0.22s; }
+        .revealed-section.visible .info-card:nth-child(3) { opacity:1; transform:translateY(0); transition-delay:0.32s; }
+        .revealed-section.visible .info-card:nth-child(4) { opacity:1; transform:translateY(0); transition-delay:0.42s; }
+
+        .card-label {
+            font-family: var(--mono);
+            font-size: 9px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--text-tertiary);
+            margin-bottom: 12px;
+        }
+
+        .card-heading {
+            font-size: 14.5px;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            letter-spacing: -0.01em;
+        }
+
+        .card-body {
+            font-size: 13.5px;
+            font-weight: 300;
+            color: var(--text-secondary);
+            line-height: 1.72;
+        }
+
+        .prose {
+            font-size: 15px;
+            font-weight: 300;
+            line-height: 1.9;
+            color: var(--text-secondary);
+            border-top: 1px solid var(--border);
+            padding-top: 48px;
+            opacity: 0;
+            transition: opacity 0.7s ease 0.55s;
+        }
+
+        .revealed-section.visible .prose { opacity: 1; }
+        .prose p + p { margin-top: 22px; }
+
+        /* ── Footer ── */
+        .site-footer {
+            text-align: center;
+            padding: 36px 40px;
+            font-family: var(--mono);
+            font-size: 10px;
+            letter-spacing: 0.1em;
+            color: var(--text-tertiary);
+            border-top: 1px solid var(--border);
+            display: none;
+        }
+
+        /* ── Scrim ── */
+        .scrim {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.72);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease;
+        }
+
+        .scrim.active { opacity: 1; pointer-events: auto; }
+
+        .modal-wrap {
+            transform: translateY(20px) scale(0.96);
+            transition: transform 0.35s cubic-bezier(0.16,1,0.3,1);
+        }
+
+        .scrim.active .modal-wrap { transform: translateY(0) scale(1); }
+
+        /* ── Tamagotchi card ── */
         .tama-card {
-            animation: fadein 0.5s ease forwards;
+            width: 320px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0.07) 100%);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255,255,255,0.14);
+            border-radius: 20px;
+            padding: 32px 28px 28px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-family: var(--mono);
+        }
+
+        .tama-title {
+            font-size: 13.5px;
+            font-weight: 700;
+            color: rgba(255,255,255,0.9);
+            margin-bottom: 5px;
+            text-align: center;
+        }
+
+        .tama-sub {
+            font-size: 10px;
+            color: rgba(255,255,255,0.36);
+            margin-bottom: 26px;
+            text-align: center;
+            min-height: 14px;
+            letter-spacing: 0.01em;
+        }
+
+        .tama-puppy {
+            width: 120px; height: 120px;
+            margin-bottom: 20px;
+            transform-origin: center bottom;
+        }
+
+        .tama-input-wrap {
+            width: 100%;
+            margin-bottom: 12px;
+            position: relative;
         }
 
         .tama-input {
-            outline: none !important;
-            box-shadow: none !important;
+            width: 100%;
+            background: #161616;
+            border: 1px solid rgba(255,255,255,0.10);
+            border-radius: 10px;
+            padding: 12px 36px 12px 16px;
+            color: rgba(255,255,255,0.9);
+            font-size: 13px;
+            font-family: var(--mono);
+            outline: none;
+            box-shadow: none;
             -webkit-appearance: none;
+            transition: border-color 0.15s;
         }
-        .tama-input:focus {
-            outline: none !important;
-            box-shadow: none !important;
-            border-color: rgba(255,255,255,0.10) !important;
-        }
-        .tama-eye {
+
+        .tama-input:focus { border-color: rgba(255,255,255,0.2); }
+
+        .tama-eye-btn {
             all: unset;
             position: absolute;
-            right: 6px;
-            top: 0;
-            bottom: 0;
+            right: 6px; top: 0; bottom: 0;
             width: 32px;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            color: rgba(255,255,255,0.30);
+            color: rgba(255,255,255,0.28);
+            transition: color 0.15s;
         }
-        .tama-eye:hover { color: rgba(255,255,255,0.55); }
+
+        .tama-eye-btn:hover { color: rgba(255,255,255,0.55); }
+
+        .tama-btn {
+            width: 100%;
+            padding: 13px;
+            border-radius: 10px;
+            border: none;
+            font-size: 13px;
+            font-weight: 700;
+            font-family: var(--mono);
+            cursor: pointer;
+            transition: opacity 0.15s, transform 0.1s;
+            letter-spacing: 0.025em;
+        }
+
+        .tama-btn:active { transform: scale(0.98); }
+
+        /* ── Keyframes ── */
+        @keyframes pm-breathe { 0%,100%{transform:scale(1)} 50%{transform:scale(1.04)} }
+        @keyframes pm-wobble  { 0%,100%{transform:rotate(0deg)} 25%{transform:rotate(-4deg)} 75%{transform:rotate(4deg)} }
+        @keyframes pm-bounce  { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-7px)} }
+        @keyframes pm-shake   { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-6px)} 40%{transform:translateX(6px)} 60%{transform:translateX(-4px)} 80%{transform:translateX(4px)} }
+        @keyframes fadein-up  { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
+
+        .fadein   { animation: fadein-up 0.65s cubic-bezier(0.16,1,0.3,1) both; }
+        .d1 { animation-delay: 0.05s; }
+        .d2 { animation-delay: 0.15s; }
+        .d3 { animation-delay: 0.28s; }
+        .d4 { animation-delay: 0.42s; }
+        .d5 { animation-delay: 0.55s; }
 
         canvas { display: block; }
+
+        /* ── Responsive ── */
+        @media (max-width: 768px) {
+            .hero { grid-template-columns: 1fr; }
+            .hero-left { padding: 60px 28px; }
+            .hero-right { min-height: 260px; border-left: none; border-top: 1px solid var(--border); padding: 48px 28px; }
+            .cards-grid { grid-template-columns: 1fr; }
+            nav { padding: 0 24px; }
+            .nav-links { gap: 22px; }
+            .revealed-section { padding: 72px 28px 80px; }
+        }
     </style>
 </head>
 <body>
-    <div id="root"></div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+    <nav>
+        <div class="nav-name">Nitya</div>
+        <ul class="nav-links">
+            <li><a href="#">Home</a></li>
+            <li><a href="#">Work</a></li>
+            <li><a href="#">About</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <section class="hero">
+
+            <!-- Left -->
+            <div class="hero-left">
+                <div class="eyebrow fadein d1">Case Study</div>
+
+                <h1 class="fadein d2">
+                    Designing for<br>
+                    <em>systems that think</em>
+                </h1>
+
+                <p class="hero-body fadein d3">
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip.
+                </p>
+
+                <div class="meta-row fadein d4">
+                    <div class="meta-item">
+                        <span class="meta-label">Role</span>
+                        <span class="meta-value">Lead Designer</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Year</span>
+                        <span class="meta-value">2024</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Platform</span>
+                        <span class="meta-value">Web & iOS</span>
+                    </div>
+                </div>
+
+                <button class="cta-btn fadein d5" id="open-modal-btn">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="11" width="18" height="11" rx="2"/>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                    </svg>
+                    Enter Password
+                </button>
+            </div>
+
+            <!-- Right -->
+            <div class="hero-right">
+                <div class="laptop-frame fadein d3">
+                    <div class="laptop-screen">
+                        <div class="screen-ui">
+                            <div class="s-bar w-40"></div>
+                            <div class="s-bar w-75"></div>
+                            <div class="s-bar w-55"></div>
+                            <div class="s-block"></div>
+                            <div class="s-bar w-75"></div>
+                            <div class="s-bar w-55"></div>
+                            <div class="s-dots">
+                                <div class="s-dot"></div>
+                                <div class="s-dot"></div>
+                                <div class="s-dot"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+        <hr />
+
+        <!-- Revealed -->
+        <section class="revealed-section" id="revealed">
+            <div class="revealed-eyebrow">In Depth</div>
+            <h2>Case study — <em>a closer look</em></h2>
+
+            <div class="cards-grid">
+                <div class="info-card">
+                    <div class="card-label">Problem</div>
+                    <div class="card-heading">Defining the challenge</div>
+                    <div class="card-body">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip.</div>
+                </div>
+                <div class="info-card">
+                    <div class="card-label">Research</div>
+                    <div class="card-heading">What we discovered</div>
+                    <div class="card-body">Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur excepteur sint.</div>
+                </div>
+                <div class="info-card">
+                    <div class="card-label">Process</div>
+                    <div class="card-heading">How we built it</div>
+                    <div class="card-body">Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum et aliqua.</div>
+                </div>
+                <div class="info-card">
+                    <div class="card-label">Outcome</div>
+                    <div class="card-heading">What shipped</div>
+                    <div class="card-body">Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium totam rem aperiam.</div>
+                </div>
+            </div>
+
+            <div class="prose">
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
+                <p>Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.</p>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer" id="site-footer">
+        — Tamagotchi Protected · Built for WWC New York —
+    </footer>
+
+    <!-- Scrim + Modal -->
+    <div class="scrim" id="scrim">
+        <div class="modal-wrap">
+            <div class="tama-card">
+                <div class="tama-title">Tamagotchi Protected</div>
+                <div class="tama-sub" id="tama-sub">Feed me a password to begin...</div>
+                <div class="tama-puppy" id="tama-puppy">
+                    <canvas id="tama-canvas" width="24" height="24"
+                        style="width:120px;height:120px;image-rendering:pixelated;display:block;"></canvas>
+                </div>
+                <div class="tama-input-wrap">
+                    <input class="tama-input" id="tama-input" type="password"
+                        placeholder="Enter password" autocomplete="off" />
+                    <button class="tama-eye-btn" id="tama-eye" aria-label="Toggle password">
+                        <svg id="eye-svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+                            <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+                            <line x1="1" y1="1" x2="23" y2="23"/>
+                        </svg>
+                    </button>
+                </div>
+                <button class="tama-btn" id="tama-btn"
+                    style="background:#4B3FA0;color:#e8e4ff;">Unlock</button>
+            </div>
+        </div>
+    </div>
 
     <script>
-    const { useState, useEffect, useRef, useCallback } = React;
-
-    // ─── Design tokens ────────────────────────────────────────────────────────
-    const tokens = {
-        cardBg: "linear-gradient(135deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0.08) 100%)",
-        cardBorder: "1px solid rgba(255,255,255,0.15)",
-        cardBlur: "blur(16px)",
-        inputBg: "#161616",
-        inputBorder: "rgba(255,255,255,0.10)",
-        primaryText: "rgba(255,255,255,0.90)",
-        textLink: "rgba(255,255,255,0.40)",
-        purpleDark: "#4B3FA0",
-        red: "#FF453A",
-        redDark: "#3a1a18",
-        green: "#32D74B",
-        greenDark: "#0d3320",
+    // ── Palette ──────────────────────────────────────────────────────────────
+    const P = {
+        body:"#7F77DD", ear:"#5A54B0", dark:"#2a2660",
+        nose:"#2a2660", blush:"#AFA9EC", tongue:"rgba(255,255,255,0.85)"
     };
+    const CM = v => ({1:P.body,2:P.ear,3:P.dark,4:P.nose,6:P.blush,7:P.tongue})[v]||null;
 
-    // ─── Pixel puppy palette ──────────────────────────────────────────────────
-    const PALETTE = {
-        body: "#7F77DD",
-        ear: "#5A54B0",
-        dark: "#2a2660",
-        nose: "#2a2660",
-        bg: "transparent",
-        blush: "#AFA9EC",
-        tongue: "rgba(255,255,255,0.85)",
-    };
-
-    const COLOR_MAP = (v) =>
-        ({ 0: PALETTE.bg, 1: PALETTE.body, 2: PALETTE.ear, 3: PALETTE.dark, 4: PALETTE.nose, 6: PALETTE.blush, 7: PALETTE.tongue }[v] ?? PALETTE.bg);
-
-    // ─── Sprite builder ───────────────────────────────────────────────────────
     function buildSprite(smile, blink) {
-        const g = [
+        const g=[
             [0,0,0,2,2,0,0,0,0,0,0,0,0,0,0,0,0,2,2,0,0,0,0,0],
             [0,0,2,2,2,2,0,0,0,0,0,0,0,0,0,0,2,2,2,2,0,0,0,0],
             [0,2,2,2,2,2,2,0,0,0,0,0,0,0,0,2,2,2,2,2,2,0,0,0],
@@ -143,227 +718,126 @@
             [0,0,0,0,0,0,0,1,3,3,1,3,3,1,0,0,0,0,0,0,0,0,0,0],
             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
         ];
-        if (blink) {
-            g[7][4]=1; g[7][5]=1; g[8][4]=3; g[8][5]=3;
-            g[7][15]=1; g[7][16]=1; g[8][15]=3; g[8][16]=3;
-        }
-        if (smile === "big") {
+        if(blink){g[7][4]=1;g[7][5]=1;g[8][4]=3;g[8][5]=3;g[7][15]=1;g[7][16]=1;g[8][15]=3;g[8][16]=3;}
+        if(smile==="big"){
             g[13]=[0,0,1,1,1,1,1,0,7,7,7,7,7,0,1,1,1,1,1,0,0,0,0,0];
             g[14]=[0,0,1,1,1,1,0,7,1,1,1,1,1,7,0,1,1,1,1,0,0,0,0,0];
             g[15]=[0,0,0,1,1,1,0,0,7,7,7,7,7,0,0,1,1,1,0,0,0,0,0,0];
-            g[7][3]=3; g[7][6]=3; g[8][4]=3; g[8][5]=3;
-            g[7][14]=3; g[7][17]=3; g[8][15]=3; g[8][16]=3;
-        } else if (smile === "sad") {
+            g[7][3]=3;g[7][6]=3;g[8][4]=3;g[8][5]=3;g[7][14]=3;g[7][17]=3;g[8][15]=3;g[8][16]=3;
+        } else if(smile==="sad"){
             g[13]=[0,0,1,1,1,1,1,0,0,3,1,3,0,0,1,1,1,1,1,0,0,0,0,0];
             g[14]=[0,0,1,1,1,1,0,0,3,1,1,1,3,0,0,1,1,1,1,0,0,0,0,0];
             g[15]=[0,0,0,1,1,1,0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0];
-            g[7][4]=1; g[7][5]=1; g[8][4]=3; g[8][5]=3;
-            g[7][15]=1; g[7][16]=1; g[8][15]=3; g[8][16]=3;
+            g[7][4]=1;g[7][5]=1;g[8][4]=3;g[8][5]=3;g[7][15]=1;g[7][16]=1;g[8][15]=3;g[8][16]=3;
         }
         return g;
     }
 
-    // ─── Puppy Canvas ─────────────────────────────────────────────────────────
-    function PuppyCanvas({ smile, blink }) {
-        const canvasRef = useRef(null);
-        useEffect(() => {
-            const canvas = canvasRef.current;
-            if (!canvas) return;
-            const ctx = canvas.getContext("2d");
-            if (!ctx) return;
-            const sprite = buildSprite(smile, blink);
-            ctx.clearRect(0, 0, 24, 24);
-            for (let r = 0; r < 24; r++)
-                for (let c = 0; c < 24; c++) {
-                    const color = COLOR_MAP(sprite[r][c]);
-                    if (color === "transparent") continue;
-                    ctx.fillStyle = color;
-                    ctx.fillRect(c, r, 1, 1);
-                }
-        }, [smile, blink]);
-        return React.createElement("canvas", {
-            ref: canvasRef,
-            width: 24,
-            height: 24,
-            style: { width: 120, height: 120, imageRendering: "pixelated" }
-        });
+    function draw(smile, blink){
+        const canvas=document.getElementById("tama-canvas");
+        const ctx=canvas.getContext("2d");
+        ctx.clearRect(0,0,24,24);
+        const s=buildSprite(smile,blink);
+        for(let r=0;r<24;r++) for(let c=0;c<24;c++){
+            const col=CM(s[r][c]);
+            if(!col) continue;
+            ctx.fillStyle=col;
+            ctx.fillRect(c,r,1,1);
+        }
     }
 
-    // ─── Eye Icon ─────────────────────────────────────────────────────────────
-    function EyeIcon({ open }) {
-        return React.createElement("svg", {
-            width: 17, height: 17, viewBox: "0 0 24 24",
-            fill: "none", stroke: "currentColor",
-            strokeWidth: 1.5, strokeLinecap: "round", strokeLinejoin: "round"
-        },
-            open
-                ? [
-                    React.createElement("path", { key: "p", d: "M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" }),
-                    React.createElement("circle", { key: "c", cx: 12, cy: 12, r: 3 })
-                ]
-                : [
-                    React.createElement("path", { key: "p1", d: "M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" }),
-                    React.createElement("path", { key: "p2", d: "M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" }),
-                    React.createElement("line", { key: "l", x1: 1, y1: 1, x2: 23, y2: 23 })
-                ]
-        );
-    }
+    // ── State machine ────────────────────────────────────────────────────────
+    const PASSWORD="Nitya@26";
+    let state="idle", showPw=false, blinkTimer=null;
 
-    // ─── State config ─────────────────────────────────────────────────────────
-    const STATE_CONFIG = {
-        idle:     { sub: "Feed me a password to begin...",     btn: "Unlock",     btnBg: tokens.purpleDark, btnColor: "#e8e4ff", anim: "breathe", smile: "normal" },
-        typing:   { sub: "Processing snacks... keep going.",  btn: "Continue",   btnBg: tokens.purpleDark, btnColor: "#e8e4ff", anim: "wobble",  smile: "normal" },
-        error:    { sub: "Still hungry. Try another recipe?", btn: "Retry",      btnBg: tokens.redDark,    btnColor: tokens.red,   anim: "shake",   smile: "sad" },
-        unlocked: { sub: "Tummy full. Access granted!",        btn: "Enter Site", btnBg: tokens.greenDark,  btnColor: tokens.green, anim: "bounce",  smile: "big" },
+    const STATES={
+        idle:    {sub:"Feed me a password to begin...",    btn:"Unlock",    bg:"#4B3FA0",col:"#e8e4ff",anim:"pm-breathe 3s ease-in-out infinite",  smile:"normal"},
+        typing:  {sub:"Processing snacks... keep going.", btn:"Continue",  bg:"#4B3FA0",col:"#e8e4ff",anim:"pm-wobble 1s ease-in-out infinite",   smile:"normal"},
+        error:   {sub:"Still hungry. Try another recipe?",btn:"Retry",     bg:"#3a1a18",col:"#FF453A",anim:"pm-shake 0.5s ease-in-out",            smile:"sad"},
+        unlocked:{sub:"Tummy full. Access granted!",       btn:"Enter Site",bg:"#0d3320",col:"#32D74B",anim:"pm-bounce 0.7s ease-in-out infinite", smile:"big"},
     };
 
-    const PASSWORD = "Nitya@26";
-
-    // ─── Main component ───────────────────────────────────────────────────────
-    function TamagotchiComponent() {
-        const [state, setState] = useState("idle");
-        const [value, setValue] = useState("");
-        const [showPw, setShowPw] = useState(false);
-        const [blink, setBlink] = useState(false);
-        const [shaking, setShaking] = useState(false);
-        const blinkTimer = useRef(null);
-        const cfg = STATE_CONFIG[state];
-
-        const scheduleBlink = useCallback(() => {
-            if (blinkTimer.current) clearTimeout(blinkTimer.current);
-            blinkTimer.current = setTimeout(() => {
-                setBlink(true);
-                setTimeout(() => {
-                    setBlink(false);
-                    scheduleBlink();
-                }, 150);
-            }, 3000 + Math.random() * 3000);
-        }, []);
-
-        useEffect(() => {
-            if (state === "idle") {
-                scheduleBlink();
-            } else {
-                if (blinkTimer.current) clearTimeout(blinkTimer.current);
-                setBlink(false);
-            }
-            return () => { if (blinkTimer.current) clearTimeout(blinkTimer.current); };
-        }, [state, scheduleBlink]);
-
-        const handleInput = (e) => {
-            const v = e.target.value;
-            setValue(v);
-            if (state === "unlocked") return;
-            if (v === "") setState("idle");
-            else if (state !== "typing") setState("typing");
-        };
-
-        const handleUnlock = () => {
-            if (state === "unlocked" || !value) return;
-            if (value === PASSWORD) {
-                setState("unlocked");
-            } else {
-                setState("error");
-                setShaking(true);
-                setTimeout(() => setShaking(false), 500);
-            }
-        };
-
-        const handleKeyDown = (e) => {
-            if (e.key === "Enter") handleUnlock();
-        };
-
-        const puppyAnimation = shaking ? "pm-shake 0.5s ease-in-out"
-            : cfg.anim === "breathe" ? "pm-breathe 3s ease-in-out infinite"
-            : cfg.anim === "wobble"  ? "pm-wobble 1s ease-in-out infinite"
-            : cfg.anim === "bounce"  ? "pm-bounce 0.7s ease-in-out infinite"
-            : "none";
-
-        return React.createElement("div", {
-            className: "tama-card",
-            style: {
-                width: 320,
-                background: tokens.cardBg,
-                backdropFilter: tokens.cardBlur,
-                WebkitBackdropFilter: tokens.cardBlur,
-                border: tokens.cardBorder,
-                borderRadius: 20,
-                padding: "32px 28px 28px",
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                fontFamily: "'Space Mono', monospace",
-            }
-        },
-            // Title
-            React.createElement("div", {
-                style: { fontSize: 15, fontWeight: 700, color: tokens.primaryText, marginBottom: 5, textAlign: "center" }
-            }, "Tamagotchi Protected"),
-
-            // Subtitle
-            React.createElement("div", {
-                style: { fontSize: 11, color: tokens.textLink, marginBottom: 26, textAlign: "center", minHeight: 16 }
-            }, cfg.sub),
-
-            // Puppy
-            React.createElement("div", {
-                style: { width: 120, height: 120, marginBottom: 20, animation: puppyAnimation, transformOrigin: "center bottom" }
-            }, React.createElement(PuppyCanvas, { smile: cfg.smile, blink })),
-
-            // Input wrapper
-            React.createElement("div", { style: { width: "100%", marginBottom: 12, position: "relative" } },
-                React.createElement("input", {
-                    className: "tama-input",
-                    type: showPw ? "text" : "password",
-                    value,
-                    onChange: handleInput,
-                    onKeyDown: handleKeyDown,
-                    placeholder: "Enter password",
-                    style: {
-                        width: "100%",
-                        boxSizing: "border-box",
-                        background: tokens.inputBg,
-                        border: `1px solid ${tokens.inputBorder}`,
-                        borderRadius: 10,
-                        padding: "12px 36px 12px 16px",
-                        color: tokens.primaryText,
-                        fontSize: 14,
-                        fontFamily: "'Space Mono', monospace",
-                        outline: "none",
-                        boxShadow: "none",
-                    }
-                }),
-                React.createElement("button", {
-                    className: "tama-eye",
-                    onClick: () => setShowPw(p => !p),
-                    tabIndex: -1,
-                    "aria-label": "Toggle password"
-                }, React.createElement(EyeIcon, { open: showPw }))
-            ),
-
-            // Button
-            React.createElement("button", {
-                onClick: handleUnlock,
-                style: {
-                    width: "100%",
-                    padding: 12,
-                    borderRadius: 10,
-                    border: "none",
-                    fontSize: 14,
-                    fontWeight: 700,
-                    fontFamily: "'Space Mono', monospace",
-                    cursor: "pointer",
-                    background: cfg.btnBg,
-                    color: cfg.btnColor,
-                    transition: "opacity 0.15s",
-                }
-            }, cfg.btn)
-        );
+    function applyState(s){
+        state=s;
+        const c=STATES[s];
+        document.getElementById("tama-sub").textContent=c.sub;
+        const btn=document.getElementById("tama-btn");
+        btn.textContent=c.btn; btn.style.background=c.bg; btn.style.color=c.col;
+        document.getElementById("tama-puppy").style.animation=c.anim;
+        draw(c.smile,false);
+        clearTimeout(blinkTimer);
+        if(s==="idle") scheduleBlink();
     }
 
-    // ─── Mount ────────────────────────────────────────────────────────────────
-    const root = ReactDOM.createRoot(document.getElementById("root"));
-    root.render(React.createElement(TamagotchiComponent));
+    function scheduleBlink(){
+        blinkTimer=setTimeout(()=>{
+            draw("normal",true);
+            setTimeout(()=>{ draw("normal",false); if(state==="idle") scheduleBlink(); },150);
+        },3000+Math.random()*3000);
+    }
+
+    // Eye toggle
+    document.getElementById("tama-eye").addEventListener("click",()=>{
+        showPw=!showPw;
+        document.getElementById("tama-input").type=showPw?"text":"password";
+        document.getElementById("eye-svg").innerHTML=showPw
+            ?`<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>`
+            :`<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/>`;
+    });
+
+    // Input
+    document.getElementById("tama-input").addEventListener("input",e=>{
+        if(state==="unlocked") return;
+        if(e.target.value==="") applyState("idle");
+        else if(state!=="typing") applyState("typing");
+        else draw("normal",false);
+    });
+
+    document.getElementById("tama-input").addEventListener("keydown",e=>{
+        if(e.key==="Enter") unlock();
+    });
+
+    function unlock(){
+        if(state==="unlocked"){ closeAndReveal(); return; }
+        const val=document.getElementById("tama-input").value;
+        if(!val) return;
+        if(val===PASSWORD){
+            applyState("unlocked");
+        } else {
+            applyState("error");
+            setTimeout(()=>{ if(state==="error") applyState(document.getElementById("tama-input").value?"typing":"idle"); },600);
+        }
+    }
+
+    document.getElementById("tama-btn").addEventListener("click", unlock);
+
+    // Open modal
+    document.getElementById("open-modal-btn").addEventListener("click",()=>{
+        document.getElementById("scrim").classList.add("active");
+        document.getElementById("tama-input").value="";
+        applyState("idle");
+        setTimeout(()=>document.getElementById("tama-input").focus(), 350);
+    });
+
+    // Close on scrim click
+    document.getElementById("scrim").addEventListener("click",e=>{
+        if(e.target===document.getElementById("scrim"))
+            document.getElementById("scrim").classList.remove("active");
+    });
+
+    // Close and reveal
+    function closeAndReveal(){
+        document.getElementById("scrim").classList.remove("active");
+        setTimeout(()=>{
+            const r=document.getElementById("revealed");
+            r.classList.add("visible");
+            document.getElementById("site-footer").style.display="block";
+            setTimeout(()=>r.scrollIntoView({behavior:"smooth",block:"start"}), 80);
+        }, 380);
+    }
+
+    // Init
+    draw("normal",false);
     </script>
 </body>
 </html>
