@@ -506,7 +506,7 @@
             font-weight: 700;
             font-family: var(--mono);
             cursor: pointer;
-            transition: opacity 0.15s, transform 0.1s;
+            transition: opacity 0.4s ease, transform 0.1s;
             letter-spacing: 0.025em;
         }
 
@@ -528,6 +528,30 @@
 
         canvas { display: block; }
 
+        /* ── Custom cursor ── */
+        *, *::before, *::after { cursor: none !important; }
+
+        .custom-cursor {
+            position: fixed;
+            top: 0; left: 0;
+            width: 18px; height: 18px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.90);
+            pointer-events: none;
+            z-index: 99999;
+            transform: translate(-50%, -50%);
+            transition: width 0.2s cubic-bezier(0.16,1,0.3,1),
+                        height 0.2s cubic-bezier(0.16,1,0.3,1),
+                        opacity 0.2s ease;
+            mix-blend-mode: difference;
+            will-change: transform;
+        }
+
+        .custom-cursor.hovering {
+            width: 22px;
+            height: 22px;
+        }
+
         /* ── Responsive ── */
         @media (max-width: 768px) {
             .hero { grid-template-columns: 1fr; }
@@ -541,6 +565,8 @@
     </style>
 </head>
 <body>
+
+    <div class="custom-cursor" id="cursor"></div>
 
     <nav>
         <div class="nav-name">Nitya</div>
@@ -576,10 +602,7 @@
                         <span class="meta-label">Year</span>
                         <span class="meta-value">2026</span>
                     </div>
-                    <div class="meta-item">
-                        <span class="meta-label">Platform</span>
-                        <span class="meta-value">Photoshop & InDesign</span>
-                    </div>
+
                 </div>
 
                 <button class="cta-btn fadein d5" id="open-modal-btn">
@@ -646,7 +669,7 @@
 
             <div class="prose">
                 <p>This was Adobe's first attempt at a truly cross-app agentic AI experience — not a chatbot bolted onto a tool, but an agent that understood creative intent across the full Adobe ecosystem. The design challenge wasn't just the UI, it was inventing the language: how does an AI agent communicate what it's doing, why it's doing it, and when it needs you back in the loop?</p>
-                <p>We ran the AI Playground jam sessions across India to stress-test the frameworks with real designers — building the feedback loop that shaped the final interaction model. The 60% CSAT result in beta validated the core thesis: designers don't want AI to take over, they want AI that knows when to ask.</p>
+                <p>The interaction frameworks launched first in Illustrator's beta, then scaled to Photoshop and InDesign. Additionally, led AI Playground jam sessions across India for designers to lead AI-assisted workflow exercises — and built a Vibecoding Simulator with an LLM API for designers globally to vibe code and train agentic responses.</p>
             </div>
         </section>
     </main>
@@ -754,7 +777,7 @@
         idle:    {sub:"Feed me a password to begin...",    btn:"Unlock",    bg:"#4B3FA0",col:"#e8e4ff",anim:"pm-breathe 3s ease-in-out infinite",  smile:"normal"},
         typing:  {sub:"Processing snacks... keep going.", btn:"Continue",  bg:"#4B3FA0",col:"#e8e4ff",anim:"pm-wobble 1s ease-in-out infinite",   smile:"normal"},
         error:   {sub:"Still hungry. Try another recipe?",btn:"Retry",     bg:"#3a1a18",col:"#FF453A",anim:"pm-shake 0.5s ease-in-out",            smile:"sad"},
-        unlocked:{sub:"Tummy full. Access granted!",       btn:"Enter Site",bg:"#0f4a28",col:"#32D74B",anim:"pm-bounce 0.7s ease-in-out infinite", smile:"big"},
+        unlocked:{sub:"Delicious, tummy full.",       btn:"Access Granted →",bg:"#4B3FA0",col:"#e8e4ff",anim:"pm-bounce 0.7s ease-in-out infinite", smile:"big"},
     };
 
     function applyState(s){
@@ -798,11 +821,13 @@
     });
 
     function unlock(){
-        if(state==="unlocked"){ closeAndReveal(); return; }
+        if(state==="unlocked") return;
         const val=document.getElementById("tama-input").value;
         if(!val) return;
         if(val===PASSWORD){
             applyState("unlocked");
+            // bounce animation is 0.7s per cycle, wait 2 bounces = 1.4s + small buffer
+            setTimeout(()=>{ closeAndReveal(); }, 1600);
         } else {
             applyState("error");
             setTimeout(()=>{ if(state==="error") applyState(document.getElementById("tama-input").value?"typing":"idle"); },600);
@@ -838,6 +863,42 @@
 
     // Init
     draw("normal",false);
+
+    // ── Custom cursor ────────────────────────────────────────────────────────
+    const cursor = document.getElementById("cursor");
+    let mouseX = 0, mouseY = 0;
+    let cursorX = 0, cursorY = 0;
+    let raf;
+
+    document.addEventListener("mousemove", e => {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+    });
+
+    // Smooth follow with RAF
+    function animateCursor() {
+        const ease = 0.18;
+        cursorX += (mouseX - cursorX) * ease;
+        cursorY += (mouseY - cursorY) * ease;
+        cursor.style.transform = `translate(${cursorX - cursor.offsetWidth / 2}px, ${cursorY - cursor.offsetHeight / 2}px)`;
+        raf = requestAnimationFrame(animateCursor);
+    }
+    animateCursor();
+
+    // Hover targets — buttons, links, inputs, labels
+    const hoverTargets = 'a, button, input, [role="button"], .cta-btn, .tama-btn, .tama-eye-btn, .nav-links a';
+
+    document.addEventListener("mouseover", e => {
+        if (e.target.closest(hoverTargets)) cursor.classList.add("hovering");
+    });
+
+    document.addEventListener("mouseout", e => {
+        if (e.target.closest(hoverTargets)) cursor.classList.remove("hovering");
+    });
+
+    // Hide when leaving window
+    document.addEventListener("mouseleave", () => cursor.style.opacity = "0");
+    document.addEventListener("mouseenter", () => cursor.style.opacity = "1");
     </script>
 </body>
 </html>
